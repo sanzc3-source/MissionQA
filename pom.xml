@@ -31,7 +31,6 @@
         <jcommander.version>1.82</jcommander.version>
     </properties>
 
-    <!-- Force safe transitive versions where needed -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -44,7 +43,11 @@
 
     <dependencies>
 
-        <!-- Jackson (needed by WireMock). Note: jackson-annotations version is 2.21 (no .0) -->
+        <!-- ===================== -->
+        <!-- Jackson / WireMock -->
+        <!-- ===================== -->
+
+        <!-- Note: jackson-annotations version is 2.21 (no .0) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
@@ -103,11 +106,22 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- WebDriverManager (kept, but Selenium Manager is now default in DriverManager.java) -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
             <version>${wdm.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-transport-httpclient5</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- ===================== -->
