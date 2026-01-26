@@ -11,7 +11,21 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * DriverManager
+ *
+ * Goal: Prefer Selenium Manager (built into Selenium 4.6+) to avoid WebDriverManager's
+ * Apache HttpClient 5 dependency path (which is currently causing NoSuchMethodError).
+ *
+ * Behavior:
+ * - By default, uses Selenium Manager (no WebDriverManager calls).
+ * - If you ever NEED WebDriverManager again, set:
+ *      -DuseWdm=true
+ */
 public final class DriverManager {
+
+    private static final boolean USE_WDM =
+            Boolean.parseBoolean(System.getProperty("useWdm", "false"));
 
     private DriverManager() {}
 
@@ -20,23 +34,51 @@ public final class DriverManager {
 
         switch (browser) {
             case "chrome":
-                WebDriverManager.chromedriver().setup();
+                setupIfNeeded("chrome");
                 return new ChromeDriver(buildChromeOptions(false));
 
             case "chromeheadless":
-                WebDriverManager.chromedriver().setup();
+                setupIfNeeded("chrome");
                 return new ChromeDriver(buildChromeOptions(true));
 
             case "edge":
-                WebDriverManager.edgedriver().setup();
+                setupIfNeeded("edge");
                 return new EdgeDriver();
 
             case "firefox":
-                WebDriverManager.firefoxdriver().setup();
+                setupIfNeeded("firefox");
                 return new FirefoxDriver();
 
             default:
                 throw new IllegalArgumentException("Unsupported browser in config.properties: " + browser);
+        }
+    }
+
+    /**
+     * Selenium Manager automatically resolves the driver binary for Selenium 4.6+.
+     * If USE_WDM=true, fall back to WebDriverManager (useful for edge cases).
+     */
+    private static void setupIfNeeded(String browser) {
+        if (!USE_WDM) {
+            // Selenium Manager path: no setup required.
+            return;
+        }
+
+        // WebDriverManager fallback path (avoid HttpClient if possible).
+        System.setProperty("wdm.avoidHttpClient", "true");
+
+        switch (browser) {
+            case "chrome":
+                WebDriverManager.chromedriver().setup();
+                break;
+            case "edge":
+                WebDriverManager.edgedriver().setup();
+                break;
+            case "firefox":
+                WebDriverManager.firefoxdriver().setup();
+                break;
+            default:
+                // no-op
         }
     }
 
@@ -47,7 +89,7 @@ public final class DriverManager {
             options.addArguments("--headless=new");
         }
 
-        // Fresh profile each run
+        // Fresh profile each run (prevents state/popup leakage across runs)
         String tmpProfile = System.getProperty("java.io.tmpdir")
                 + "/missionqa-chrome-" + System.currentTimeMillis();
         options.addArguments("--user-data-dir=" + tmpProfile);
@@ -68,7 +110,7 @@ public final class DriverManager {
         Map<String, Object> prefs = new HashMap<>();
         prefs.put("credentials_enable_service", false);
         prefs.put("profile.password_manager_enabled", false);
-        prefs.put("profile.password_manager_leak_detection", false); // <- important
+        prefs.put("profile.password_manager_leak_detection", false);
         options.setExperimentalOption("prefs", prefs);
 
         return options;
