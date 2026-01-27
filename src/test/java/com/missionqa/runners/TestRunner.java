@@ -12,10 +12,10 @@ import io.cucumber.testng.CucumberOptions;
         },
         plugin = {
                 "pretty",
-                "html:target/cucumber-reports.html",
-                "json:target/cucumber.json"
+                "html:/app/artifacts/cucumber.html",
+                "json:/app/artifacts/cucumber.json"
         },
-        tags = "@ui or @api"
+        monochrome = true
 )
 public class TestRunner extends AbstractTestNGCucumberTests {
 }

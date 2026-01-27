@@ -3,25 +3,18 @@ package com.missionqa.core;
 import com.missionqa.config.TestConfig;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeOptions;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * DriverManager
- *
- * Goal: Prefer Selenium Manager (built into Selenium 4.6+) to avoid WebDriverManager's
- * Apache HttpClient 5 dependency path (which is currently causing NoSuchMethodError).
- *
- * Behavior:
- * - By default, uses Selenium Manager (no WebDriverManager calls).
- * - If you ever NEED WebDriverManager again, set:
- *      -DuseWdm=true
- */
 public final class DriverManager {
 
     private static final boolean USE_WDM =
@@ -31,7 +24,14 @@ public final class DriverManager {
 
     public static WebDriver createDriver() {
         String browser = TestConfig.getProperty("browser").toLowerCase();
+        String remoteUrl = System.getenv("SELENIUM_REMOTE_URL");
 
+        // If running in Docker with Selenium container, use RemoteWebDriver
+        if (remoteUrl != null && !remoteUrl.isBlank()) {
+            return createRemoteDriver(browser, remoteUrl);
+        }
+
+        // Local execution (Selenium Manager by default)
         switch (browser) {
             case "chrome":
                 setupIfNeeded("chrome");
@@ -54,17 +54,33 @@ public final class DriverManager {
         }
     }
 
-    /**
-     * Selenium Manager automatically resolves the driver binary for Selenium 4.6+.
-     * If USE_WDM=true, fall back to WebDriverManager (useful for edge cases).
-     */
-    private static void setupIfNeeded(String browser) {
-        if (!USE_WDM) {
-            // Selenium Manager path: no setup required.
-            return;
-        }
+    private static WebDriver createRemoteDriver(String browser, String remoteUrl) {
+        try {
+            URL gridUrl = new URL(remoteUrl);
 
-        // WebDriverManager fallback path (avoid HttpClient if possible).
+            switch (browser) {
+                case "chrome":
+                case "chromeheadless":
+                    boolean headless = browser.equals("chromeheadless");
+                    return new RemoteWebDriver(gridUrl, buildChromeOptions(headless));
+
+                case "edge":
+                    return new RemoteWebDriver(gridUrl, new EdgeOptions());
+
+                case "firefox":
+                    return new RemoteWebDriver(gridUrl, new FirefoxOptions());
+
+                default:
+                    throw new IllegalArgumentException("Unsupported browser in config.properties: " + browser);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create RemoteWebDriver using SELENIUM_REMOTE_URL=" + remoteUrl, e);
+        }
+    }
+
+    private static void setupIfNeeded(String browser) {
+        if (!USE_WDM) return;
+
         System.setProperty("wdm.avoidHttpClient", "true");
 
         switch (browser) {
@@ -89,24 +105,27 @@ public final class DriverManager {
             options.addArguments("--headless=new");
         }
 
-        // Fresh profile each run (prevents state/popup leakage across runs)
+        // Fresh profile each run
         String tmpProfile = System.getProperty("java.io.tmpdir")
                 + "/missionqa-chrome-" + System.currentTimeMillis();
         options.addArguments("--user-data-dir=" + tmpProfile);
 
-        // Reduce Chrome UI noise
+        // Reduce noise + stability
         options.addArguments("--no-first-run");
         options.addArguments("--no-default-browser-check");
         options.addArguments("--disable-notifications");
         options.addArguments("--disable-popup-blocking");
         options.addArguments("--disable-extensions");
-        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
+
+        // Container-safe flags
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-setuid-sandbox");
         options.addArguments("--disable-dev-shm-usage");
 
-        // KEY: disable password leak detection popup
+        // Disable password leak detection popup
         options.addArguments("--disable-features=PasswordLeakDetection");
 
-        // Disable password manager + credential prompts + leak detection
         Map<String, Object> prefs = new HashMap<>();
         prefs.put("credentials_enable_service", false);
         prefs.put("profile.password_manager_enabled", false);
@@ -120,7 +139,6 @@ public final class DriverManager {
         if (driver == null) return;
         try {
             driver.quit();
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
     }
 }
