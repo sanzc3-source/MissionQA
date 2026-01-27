@@ -1,39 +1,46 @@
-🚀 MissionQA – API & UI Automation Framework (Docker + Jenkins)
-📌 Overview
+# MissionQA – API & UI Automation Framework
 
-This repository contains a production-grade test automation framework built using modern QA best practices and designed for local execution, CI pipelines, and nightly regression.
+**Docker + Jenkins | Java | Cucumber | Selenium**
 
-🧰 Tech Stack
+---
 
-Java + Maven
+## Overview
 
-Cucumber (BDD)
+This repository contains a **production-grade test automation framework** built using modern QA best practices and designed for:
 
-Selenium WebDriver
+- Local execution using Docker
+- Parameterized Jenkins pipelines
+- Fully automated nightly regression testing
 
-REST API testing
+This project was originally provided as an assessment and has since been **significantly refactored and extended** to demonstrate real-world automation ownership, CI design, and test stability practices.
 
-Docker & Docker Compose
+---
 
-Jenkins (parameterized + nightly CI)
+## Tech Stack
 
-✅ What This Framework Supports
+- Java + Maven
+- Cucumber (BDD)
+- Selenium WebDriver
+- REST API Testing
+- Docker & Docker Compose
+- Jenkins (parameterized + nightly CI)
 
-API-only test execution
+---
 
-UI-only test execution
+## What This Framework Supports
 
-Combined UI + API execution
+- API-only test execution
+- UI-only test execution
+- Combined UI + API execution
+- Multi-browser UI testing (Chrome & Firefox)
+- Local Docker execution (no local Java/Selenium required)
+- Fully automated nightly CI regression
 
-Multi-browser UI testing (Chrome & Firefox)
+---
 
-Local Docker execution (no local Java/Selenium setup required)
+## Project Structure
 
-Fully automated nightly CI regression
-
-🧠 This project was originally provided as an assessment and has since been heavily refactored and extended to demonstrate real-world automation ownership, CI design, and test stability best practices.
-
-🧱 Project Structure
+```text
 MissionQA
 ├── artifacts/                     # Generated test reports (HTML + JSON)
 │
@@ -51,10 +58,10 @@ MissionQA
 │       │           │   ├── pages         # Page Object Model (POM)
 │       │           │   └── steps         # UI step definitions
 │       │           │
-│       │           ├── hooks             # Cucumber hooks (setup / teardown)
-│       │           ├── runners           # Cucumber runners
-│       │           ├── core              # Shared utilities / drivers
-│       │           └── config            # Framework configuration
+│       │           ├── hooks              # Cucumber hooks (setup / teardown)
+│       │           ├── runners            # Cucumber runners
+│       │           ├── core               # Shared utilities / drivers
+│       │           └── config             # Framework configuration
 │       │
 │       └── resources
 │           ├── features
@@ -63,7 +70,7 @@ MissionQA
 │           │   └── ui
 │           │       └── UI-Test.feature
 │           │
-│           └── config.properties         # Runtime configuration
+│           └── config.properties          # Runtime configuration
 │
 ├── docker-compose.yml              # Selenium + test execution services
 ├── Dockerfile                      # Test execution image
@@ -73,8 +80,8 @@ MissionQA
 ├── .gitignore
 └── README.md
 
-🧪 Test Coverage
-🔹 API Tests
+Test Coverage
+API Tests
 
 Target: https://reqres.in/
 
@@ -91,7 +98,7 @@ HTTP response codes
 
 Request/response payload validation
 
-🔹 UI Tests
+UI Tests
 
 Target: https://www.saucedemo.com/
 
@@ -106,37 +113,46 @@ Page Object Model (POM)
 
 Explicit waits (no flaky sleeps)
 
-Browser-agnostic test design
+Browser-agnostic design
 
-🐳 Running Tests Locally (Docker)
-🔧 Prerequisites
+Running Tests Locally (Docker)
+Prerequisites
 
 Docker
 
 Docker Compose
 
-❌ Java not required locally (runs inside containers)
+❌ No local Java or Selenium required
 
-▶️ Run ALL tests (UI + API)
+Run All Tests (UI + API)
 docker compose up --build
 
-▶️ Run UI tests only (Chrome)
+Run UI Tests Only
+
+Chrome
+
 TAGS="@ui" BROWSER=chromeheadless docker compose up --build
 
-▶️ Run UI tests only (Firefox)
+
+Firefox
+
 TAGS="@ui" BROWSER=firefoxheadless docker compose up --build
 
-▶️ Run API tests only
+Run API Tests Only
 TAGS="@api" docker compose up --build
 
-▶️ Run Regression Suites
-# UI regression
+Run Regression Suites
+
+UI Regression
+
 TAGS="@ui and @regression" docker compose up --build
 
-# API regression
+
+API Regression
+
 TAGS="@api and @regression" docker compose up --build
 
-📊 Test Reports
+Test Reports
 
 After execution, reports are generated under:
 
@@ -144,72 +160,47 @@ artifacts/
 ├── cucumber.html
 └── cucumber.json
 
-In Jenkins:
+Jenkins Reporting
 
-Reports are aggregated into Cucumber Reports
+Results are aggregated via Cucumber Reports
 
-Separate HTML links are published per browser
+Separate HTML reports are published per browser
 
-UI executions are clearly labeled:
+UI executions are clearly labeled (Chrome vs Firefox)
 
-UI Chrome
-
-UI Firefox
-
-🤖 Jenkins CI Pipeline
-🔁 Nightly Execution (12:01 AM)
-
-Triggered automatically via cron:
+Jenkins CI Pipeline
+Nightly Execution (12:01 AM)
 
 API Regression
-@api and @regression
 
-
-Runs once (no browser dependency)
+@api and @regression (runs once)
 
 UI Regression
-@ui and @regression
 
+@ui and @regression
 
 Runs on Chrome
 
 Runs on Firefox
 
-▶️ Manual Jenkins Runs (Build with Parameters)
-
-The pipeline is fully parameterized and supports on-demand execution.
+Manual Execution (Build with Parameters)
 
 Parameters
 
-RUN_MODE
+Parameter	     Description
+RUN_MODE	     ALL, UI_REGRESSION, API_REGRESSION, CUSTOM
+TAGS	         Used only when RUN_MODE=CUSTOM
+BROWSERS	     chrome, firefox, both (UI only)
 
-ALL → @ui or @api
+Examples
 
-UI_REGRESSION → @ui and @regression
+Goal	           RUN_MODE	               TAGS	          BROWSERS
+UI regression	   UI_REGRESSION	       (blank)	      both
+API regression	   API_REGRESSION	       (blank)	      chrome
+Everything	       ALL	                   @ui or @api	  both
+Custom UI	       CUSTOM	               @ui	          chrome
 
-API_REGRESSION → @api and @regression
-
-CUSTOM → Uses TAGS
-
-TAGS
-
-Used only when RUN_MODE=CUSTOM
-
-BROWSERS
-
-chrome
-
-firefox
-
-both (UI only)
-
-🔎 Examples
-Goal	RUN_MODE	TAGS	BROWSERS
-UI regression	UI_REGRESSION	(blank)	both
-API regression	API_REGRESSION	(blank)	chrome
-Everything	ALL	@ui or @api	both
-Custom UI	CUSTOM	@ui	chrome
-🧠 Why Features Appear Twice in Reports
+Why Features Appear Twice in Reports
 
 When UI tests run on multiple browsers, the same feature executes once per browser.
 
@@ -217,6 +208,7 @@ Example:
 
 SauceDemo checkout calculations [UI Chrome]
 SauceDemo checkout calculations [UI Firefox]
+
 
 This is intentional and provides:
 
@@ -226,17 +218,8 @@ Clear execution separation
 
 Accurate regression tracking
 
-🐞 Known Issues
+Known Issues
 
-All identified bugs, quirks, and improvements are documented in:
+All identified bugs and improvements are documented in:
 
 BUGS_FOUND.md
-
-
-Includes:
-
-UI defects
-
-Test stability issues
-
-CI reliability improvements
