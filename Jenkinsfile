@@ -32,16 +32,14 @@ pipeline {
         IS_TIMER = "false"
     }
 
-    stages {
-        stage('Init') {
-            steps {
-                script {
-                    def cause = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger.TimerTriggerCause)
-                    env.IS_TIMER = (cause != null).toString()
-                    echo "IS_TIMER = ${env.IS_TIMER}"
-                }
+    stage('Init') {
+        steps {
+            script {
+                env.IS_TIMER = (env.BUILD_CAUSE_TIMERTRIGGER == 'true') ? 'true' : 'false'
+                echo "IS_TIMER = ${env.IS_TIMER} (BUILD_CAUSE_TIMERTRIGGER=${env.BUILD_CAUSE_TIMERTRIGGER})"
             }
         }
+    }
 
         stage('Checkout') {
             steps { checkout scm }
