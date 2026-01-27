@@ -1,8 +1,8 @@
 pipeline {
     agent any
 
-    environment {
-        TAGS = "@ui or @api"
+    parameters {
+        string(name: 'TAGS', defaultValue: '@ui or @api', description: 'Cucumber tag expression (ex: @ui, @api, @smoke, @regression, @ui and not @wip)')
     }
 
     stages {
@@ -28,12 +28,12 @@ pipeline {
 
     post {
         always {
-            // ✅ Publish cucumber.json as "Cucumber Test Result"
+            // Jenkins "Cucumber Test Result" (reads cucumber.json)
             cucumber(
                 fileIncludePattern: 'artifacts/cucumber.json'
             )
 
-            // ✅ Keep your existing HTML link too
+            // Keep the HTML file link too
             publishHTML([
                 reportName: 'Cucumber HTML Report',
                 reportDir: 'artifacts',
