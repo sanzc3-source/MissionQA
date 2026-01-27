@@ -30,7 +30,7 @@ Feature: API regression demo tests
       | Peter | Manager |
       | Liza  | Sales   |
 
-  @smoke
+  @regression
   Scenario: LOGIN - SUCCESSFUL by a user
     Given I login unsuccessfully with the following data
       | Email              | Password   |

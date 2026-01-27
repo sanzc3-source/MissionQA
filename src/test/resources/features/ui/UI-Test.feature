@@ -9,7 +9,7 @@ Feature: SauceDemo checkout calculations
     And I login via UI as "standard_user" with password "secret_sauce"
     And I should be on the inventory page
 
-  @cart @regression
+  @regression
   Scenario Outline: Add items shows correct cart badge count
     When I add these items to the cart "<items>"
     Then the cart badge count should be <count>
@@ -19,7 +19,7 @@ Feature: SauceDemo checkout calculations
       | Sauce Labs Backpack\nSauce Labs Fleece Jacket\nSauce Labs Bolt T-Shirt\nSauce Labs Onesie | 4     |
       | Sauce Labs Backpack\nSauce Labs Onesie                                                    | 2     |
 
-  @cart @regression
+  @regression
   Scenario Outline: Remove item reduces cart badge count
     When I add these items to the cart "<items>"
     And the cart badge count should be <before>
@@ -31,7 +31,7 @@ Feature: SauceDemo checkout calculations
       | items                                                                                     | before | removeItem               | after |
       | Sauce Labs Backpack\nSauce Labs Fleece Jacket\nSauce Labs Bolt T-Shirt\nSauce Labs Onesie | 4      | Sauce Labs Fleece Jacket | 3     |
 
-  @checkout @regression
+  @regression
   Scenario Outline: Checkout totals and tax are correct
     When I add these items to the cart "<items>"
     And I open the cart
