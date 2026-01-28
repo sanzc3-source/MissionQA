@@ -84,9 +84,11 @@ MissionQA
 **Feature File:** `src/test/resources/features/api/API-Test.feature`
 
 **Validates:**
-- CRUD operations
-- HTTP response codes
-- Request/response payload validation
+- Read (GET) and Create (POST) endpoint behavior
+- Authentication flows (login success/failure)
+- HTTP response codes + error handling
+- Request/response contract (payload) validation
+- Response behavior checks (e.g., delayed responses)
 
 ### UI Tests
 

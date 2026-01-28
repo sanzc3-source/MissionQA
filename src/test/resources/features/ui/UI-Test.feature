@@ -1,8 +1,7 @@
 @ui
 Feature: SauceDemo checkout calculations
-  As a shopper
-  I want correct cart totals and tax
-  So checkout charges are accurate
+    Validates that cart subtotal, tax, and final total
+    are calculated correctly during checkout.
 
   Background:
     Given I am on the login page

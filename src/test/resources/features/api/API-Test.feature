@@ -1,5 +1,5 @@
 @api
-Feature: API regression demo tests
+Feature: User API contract and behavior validation
 
   @regression
   Scenario: Should see LIST USERS of all existing users
