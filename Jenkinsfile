@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        cron('1 0 * * *')  // 12:01 AM daily
+        cron('0 8 * * *')  // 8:00 AM daily
     }
 
     options {
@@ -37,14 +37,49 @@ pipeline {
         }
 
         stage('Prep Workspace (clean artifacts)') {
-            steps {
-                sh '''
-                  set -e
-                  # HARD RESET so reports never leak across builds
-                  rm -rf artifacts
-                  mkdir -p artifacts
-                '''
-            }
+          steps {
+            sh '''
+              set -e
+              rm -rf artifacts
+              mkdir -p artifacts
+              # create expected subfolders so publishHTML never errors on missing dirs
+              mkdir -p artifacts/api artifacts/ui-chrome artifacts/ui-firefox
+            '''
+          }
+        }
+
+        stage('Docker Preflight') {
+          steps {
+            sh '''
+              set -e
+
+              echo "=== Docker Preflight ==="
+              if docker info >/dev/null 2>&1; then
+                echo "Docker is running ✅"
+                docker version
+                exit 0
+              fi
+
+              echo "Docker is NOT running. Attempting to start Docker Desktop..."
+              # macOS: start Docker Desktop silently
+              open -g -a Docker || true
+
+              echo "Waiting for Docker to become available..."
+              # wait up to 180 seconds
+              for i in $(seq 1 180); do
+                if docker info >/dev/null 2>&1; then
+                  echo "Docker is running ✅"
+                  docker version
+                  exit 0
+                fi
+                sleep 1
+              done
+
+              echo "ERROR: Docker did not start within 180s."
+              echo "If this is a Jenkins agent/service session issue, Docker Desktop may need to be launched for the same user that runs Jenkins."
+              exit 1
+            '''
+          }
         }
 
         stage('Nightly (cron)') {
