@@ -6,6 +6,24 @@ A **production-grade test automation framework** built using modern QA best prac
 
 ---
 
+## AI-Assisted Development
+
+This framework was **engineered using an AI-assisted workflow**, where AI (ChatGPT) was used to accelerate development while I owned all system design, implementation, and validation.
+
+Iterative development with continuous execution, this framework focuses on **true end-to-end (E2E) validation** across UI and API layers, including:
+
+- Selenium-based UI automation using Page Object Model for maintainable test design
+- End-to-end (E2E) workflows validating UI interactions against backend API responses
+- API automation using RestAssured with full CRUD coverage
+- Support for deterministic API testing using mocked services (WireMock)
+- Cucumber (BDD) for readable, business-driven test scenarios
+- Dockerized execution with Selenium Grid for cross-browser testing
+- Jenkins pipelines with parameterized runs and automated nightly regression
+
+AI accelerated the build process, but all architecture decisions, debugging (including dependency resolution and environment issues), and test validation were **driven and verified through real execution** — resulting in a stable, CI-ready, enterprise-style automation framework.
+
+---
+
 ##  Tech Stack
 
 - **Java** + Maven
@@ -31,7 +49,7 @@ A **production-grade test automation framework** built using modern QA best prac
 ##  Project Structure
 
 ```
-MissionQA
+e2eautomation
 ├── artifacts/                     # Generated test reports (HTML + JSON)
 │
 ├── src

@@ -11,3 +11,7 @@ test-output/
 # macOS junk
 .DS_Store
 
+
+.idea/
+artifacts/
+.DS_Store
